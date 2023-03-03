@@ -28,6 +28,7 @@ global.mess = {
     group: 'Fitur Digunakan Hanya Untuk Group!',
     private: 'Fitur Digunakan Hanya Untuk Private Chat!',
     bot: 'Fitur Khusus Pengguna Nomor Bot',
+    payment: 'Untuk melanjutkan pembayaran silahkan cek chat pribadi',
     wait: '*LOADING....*',
     nsfw: '*[❗] NSFW TIDAK AKTIF!!*',
     wrongFormat: 'Format yg anda masukan salah',
@@ -36,7 +37,6 @@ global.mess = {
     linkna: 'Mana linknya?',
 }
 global.thumb = fs.readFileSync('./media/pp.jpg')
-global.vidmenu = fs.readFileSync("./media/Karuta.mp4")
 global.limitawal = {
 premium: "Infinity",
 free: 20

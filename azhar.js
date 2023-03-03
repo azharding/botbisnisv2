@@ -57,6 +57,8 @@ let uang = JSON.parse(fs.readFileSync('./database/user/uang.json'));
 let premium = JSON.parse(fs.readFileSync('./database/user/premium.json'));
 let banned = JSON.parse(fs.readFileSync('./database/user/banned.json'));
 let register = JSON.parse(fs.readFileSync('./database/user/register.json'));
+let payment = JSON.parse(fs.readFileSync('./database/user/payment.json'));
+let seller = JSON.parse(fs.readFileSync('./database/store/seller.json'));
 let setting = JSON.parse(fs.readFileSync('./src/setting.json'))
 logonya = fs.readFileSync("./media/thumb.jpg")
 global.db = JSON.parse(fs.readFileSync('./src/database.json'))
@@ -147,6 +149,8 @@ const readmore = more.repeat(4001)
 	const isPremium = premium.includes(m.sender)
 	const isBan = banned.includes(m.sender)
 	const isRegister = register.includes(m.sender)
+    const isPayment = payment.includes(m.sender)
+    const isSeller = seller.includes(m.sender)
 // Group
 const groupMetadata = m.isGroup ? await azhar.groupMetadata(m.chat).catch(e => {}) : ''
 const groupName = m.isGroup ? groupMetadata.subject : ''
@@ -199,52 +203,18 @@ const reply = (teks) => {
 return azhar.sendMessage(from, { text: teks, mentions: parseMention(teks) }, { quoted: ftoko })
 }
 
-  //Resize
-         const reSize = async(buffer, ukur1, ukur2) => {
-             return new Promise(async(resolve, reject) => {
-             let jimp = require('jimp')
-             var baper = await jimp.read(buffer);
-             var ab = await baper.resize(ukur1, ukur2).getBufferAsync(jimp.MIME_JPEG)
-             resolve(ab)
-             })
-             }
+//Resize
+const reSize = async(buffer, ukur1, ukur2) => {
+return new Promise(async(resolve, reject) => {
+let jimp = require('jimp')
+var baper = await jimp.read(buffer);
+var ab = await baper.resize(ukur1, ukur2).getBufferAsync(jimp.MIME_JPEG)
+resolve(ab)
+ })
+}
 
-//// tempat kata //////////////
-const katahi = `𝙷𝚊𝚒 _${pushname}_
-𝙸𝚗𝚒 𝙰𝚍𝚊𝚕𝚊𝚑 𝙿𝚎𝚜𝚊𝚗 𝙾𝚝𝚘𝚖𝚊𝚝𝚒𝚜  
-⬣━━━</>𝐏𝐄𝐑𝐇𝐀𝐓𝐈𝐀𝐍</>━━━⬣ 
-=⬣ 𝙹𝚊𝚗𝚐𝚊𝚗 𝚂𝚙𝚊𝚖 𝚃𝚎𝚕𝚙𝚘𝚗 𝙱𝚘𝚝 
-=⬣ 𝙹𝚊𝚗𝚐𝚊𝚗 𝚂𝚙𝚊𝚖 𝙲𝚑𝚊𝚝 𝙱𝚘𝚝   
-⬣======================⬣
+//////// [Text CENTANG STATUS] //////////
 
-┏━⬣ 𝘽𝙊𝙏 𝙏𝙀𝙇𝘼𝙃 𝘽𝙀𝙍𝙅𝘼𝙇𝘼𝙉 
-┗━━━━━━━━━━━━━━━━━━━⬣ 
-⬡ ${runtime(process.uptime())}
-⬣━━━━━━━━━━━━━━━━━━━⬣ 
-
-𝚂𝚒𝚕𝚊𝚑𝚔𝚊𝚗 𝙿𝚒𝚕𝚒𝚑 𝙼𝚎𝚗𝚞 𝙳𝚒𝚋𝚊𝚠𝚊𝚑 𝙸𝚗𝚒`
-
-const katalist = `𝙷𝚊𝚒 ${ucapanWaktu}
-𝙸𝚗𝚏𝚘 𝙺𝚊𝚖𝚞 
-● Nama : ${pushname}
-● Nomor : ${sender.split('@')[0]}
-● User : ${isPremium ? 'Premium' : 'Free'}
-● Admin : ${isAdmins ? 'Ya' : 'No'}
-
-𝙸𝚗𝚏𝚘 𝙱𝚘𝚝 
-● Running : ${runtime(process.uptime())}
-● Server : Linux
-● Language : JavaScript
-● Jam  : ${moment().utcOffset('+0900').format('HH:mm')} WIT
-             : ${moment().utcOffset('+0800').format('HH:mm')} WITA
-             : ${moment().utcOffset('+0700').format('HH:mm')} WIB
-
-Silahkan Pilih Menu Di bawah ini`
-//// penutup kata///////////
-
-////Text CENTANG STATUS ////
-// FAKE TOKO
-const image12 = {image: { url:'./media/thumb.jpg'}}
 const ftoko = {
 key: {
 fromMe: false, 
@@ -349,29 +319,31 @@ if (isCmd) cmdadd()
 const totalhit = JSON.parse(fs.readFileSync('./database/totalcmd.json'))[0].totalcmd
 if (isCmd) cmdaddtd()
 const totalhittd = JSON.parse(fs.readFileSync('./database/todaycmd.json'))[0].todaycmd
-// AntiLink
+
+/////////////// AntiLink //////////
 if (isAntilink) {
 if (!isBotAdmins) return
 }
 if (budy.includes(`https://chat.whatsapp.com/`)) {
-bvl = `*GROUP LINK DETECTOR*\n\nAdmin telah mengirim link, admin dibebaskan untuk mengirim link apapun`
-if (isAdmins) return reply(bvl)
-if (m.key.fromMe) return reply(bvl)
-if (isOwner) return reply(bvl)
+let gclink = (`https://chat.whatsapp.com/`+await azhar.groupInviteCode(m.chat))
+let isLinkThisGc = new RegExp(gclink, 'i')
+let isgclink = isLinkThisGc.test(m.text)
+if (isgclink) return reply(`┌────「𝙇𝙄𝙉𝙆 𝙏𝙀𝙍𝘿𝙀𝙏𝙀𝙆𝙎𝙄」───\n└『𝙺𝚊𝚖𝚞 𝚃𝚒𝚍𝚊𝚔 𝙹𝚊𝚍𝚒 𝙳𝚒 𝚔𝚒𝚌𝚔 𝚔𝚊𝚛𝚎𝚗𝚊\n 𝚔𝚊𝚖𝚞 𝙼𝚎𝚗𝚐𝚒𝚛𝚒𝚖 𝙻𝚒𝚗𝚔 𝙶𝚛𝚘𝚞𝚙 𝙸𝚗𝚒』`)
+if (isAdmins) return reply(`┌────「𝙇𝙄𝙉𝙆 𝙏𝙀𝙍𝘿𝙀𝙏𝙀𝙆𝙎𝙄」───\n└『𝙺𝚊𝚖𝚞 𝚃𝚒𝚍𝚊𝚔 𝙹𝚊𝚍𝚒 𝙳𝚒 𝚔𝚒𝚌𝚔 𝚔𝚊𝚛𝚎𝚗𝚊\n 𝚔𝚊𝚖𝚞 𝙰𝚍𝚖𝚒𝚗』`)
 kice = m.sender
-azhar.sendMessage(from, {text:`*GROUP LINK DETECTOR*\n\n@${kice.split("@")[0]} Akan dikick karena mengirim link di group ini`, contextInfo:{mentionedJid:[kice]}}, {quoted:m})
+azhar.sendMessage(from, {text:`┌────「𝙇𝙄𝙉𝙆 𝙏𝙀𝙍𝘿𝙀𝙏𝙀𝙆𝙎𝙄」───\n└『@${kice.split("@")[0]} 𝙰𝚔𝚊𝚗 𝙳𝚒𝚔𝚒𝚌𝚔 𝙺𝚊𝚛𝚎𝚗𝚊 𝙼𝚎𝚗𝚐𝚒𝚛𝚒𝚖 𝙻𝚒𝚗𝚔 𝙳𝚒 𝙶𝚛𝚘𝚞𝚙 𝙸𝚗𝚒』`, contextInfo:{mentionedJid:[kice]}}, {quoted: ftoko})
 setTimeout( () => {
-  azhar.groupParticipantsUpdate(m.chat, [kice], 'remove').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
-}, 3000)
-} else {
+  azhar.groupParticipantsUpdate(m.chat, [kice], 'remove')
+})
 }
+        
 const createSerial = (size) => {
 return crypto.randomBytes(size).toString('hex').slice(0, size)
 }
 	// write database every 5 minute
 	setInterval(() => {
 fs.writeFileSync('./src/database.json', JSON.stringify(global.db, null, 2))
-}, 5 * 1000)
+}, 1 * 1000)
   // reset every 12 hours
 let cron = require('node-cron')
 cron.schedule('00 00 * * *', () => {
@@ -469,576 +441,12 @@ type: 'append'
 azhar.ev.emit('messages.upsert', msg)
 }
 
-	if (('family100'+m.chat in _family100) && isCmd) {
-kuis = true
-let room = _family100['family100'+m.chat]
-let teks = budy.toLowerCase().replace(/[^\w\s\-]+/, '')
-let isSurender = /^((me)?nyerah|surr?ender)$/i.test(m.text)
-if (!isSurender) {
-let index = room.jawaban.findIndex(v => v.toLowerCase().replace(/[^\w\s\-]+/, '') === teks)
-if (room.terjawab[index]) return !0
-room.terjawab[index] = m.sender
-}
-let isWin = room.terjawab.length === room.terjawab.filter(v => v).length
-let caption = `
-Jawablah Pertanyaan Berikut :\n${room.soal}\n\n\nTerdapat ${room.jawaban.length} Jawaban ${room.jawaban.find(v => v.includes(' ')) ? `(beberapa Jawaban Terdapat Spasi)` : ''}
-${isWin ? `Semua Jawaban Terjawab` : isSurender ? 'Menyerah!' : ''}
-${Array.from(room.jawaban, (jawaban, index) => {
-return isSurender || room.terjawab[index] ? `(${index + 1}) ${jawaban} ${room.terjawab[index] ? '@' + room.terjawab[index].split('@')[0] : ''}`.trim() : false
-    }).filter(v => v).join('\n')}
-    ${isSurender ? '' : `Perfect Player`}`.trim()
-azhar.sendText(m.chat, caption, m, { contextInfo: { mentionedJid: parseMention(caption) }}).then(mes => { return _family100['family100'+m.chat].pesan = mesg }).catch(_ => _)
-if (isWin || isSurender) delete _family100['family100'+m.chat]
-}
 
-if (tebaklagu.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebaklagu[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
-   adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lagu', buttonText: { displayText: 'Tebak Lagu' }, type: 1 }], `🎮 Tebak Lagu 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebaklagu[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (kuismath.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = kuismath[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
-  adduangUser(sender, http, uang)
-await reply(`🎮 Kuis Matematika  🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? kirim ${prefix}math mode`)
-delete kuismath[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (tebakgambar.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebakgambar[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
-adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak gambar', buttonText: { displayText: 'Tebak Gambar' }, type: 1 }], `🎮 Tebak Gambar 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebakgambar[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (tebakkata.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebakkata[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
- adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak kata', buttonText: { displayText: 'Tebak Kata' }, type: 1 }], `🎮 Tebak Kata 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebakkata[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (caklontong.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = caklontong[m.sender.split('@')[0]]
-deskripsi = caklontong_desk[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
- adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lontong', buttonText: { displayText: 'Tebak Lontong' }, type: 1 }], `🎮 Cak Lontong 🎮\n\nJawaban Benar 🎉\n*${deskripsi}*\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete caklontong[m.sender.split('@')[0]]
-delete caklontong_desk[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebakkalimat[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
-   adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak kalimat', buttonText: { displayText: 'Tebak Kalimat' }, type: 1 }], `🎮 Tebak Kalimat 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebakkalimat[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-if (tebaklirik.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebaklirik[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
- adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lirik', buttonText: { displayText: 'Tebak Lirik' }, type: 1 }], `🎮 Tebak Lirik 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebaklirik[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-	if (tebaktebakan.hasOwnProperty(m.sender.split('@')[0]) && isCmd) {
-kuis = true
-jawaban = tebaktebakan[m.sender.split('@')[0]]
-if (budy.toLowerCase() == jawaban) {
-  adduangUser(sender, http, uang)
-await azhar.sendButtonText(m.chat, [{ buttonId: 'tebak tebakan', buttonText: { displayText: 'Tebak Tebakan' }, type: 1 }], `🎮 Tebak Tebakan 🎮\n\nJawaban Benar 🎉\nHadiah : $${http}\nIngin bermain lagi? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-delete tebaktebakan[m.sender.split('@')[0]]
-} else reply('*Jawaban Salah!*')
-}
-
-//TicTacToe
-this.game = this.game ? this.game : {}
-let room = Object.values(this.game).find(room => room.id && room.game && room.state && room.id.startsWith('tictactoe') && [room.game.playerX, room.game.playerO].includes(m.sender) && room.state == 'PLAYING')
-if (room) {
-let ok
-let isWin = !1
-let isTie = !1
-let isSurrender = !1
-// reply(`[DEBUG]\n${parseInt(m.text)}`)
-if (!/^([1-9]|(me)?nyerah|surr?ender|off|skip)$/i.test(m.text)) return
-isSurrender = !/^[1-9]$/.test(m.text)
-if (m.sender !== room.game.currentTurn) { // nek wayahku
-if (!isSurrender) return !0
-}
-if (!isSurrender && 1 > (ok = room.game.turn(m.sender === room.game.playerO, parseInt(m.text) - 1))) {
-reply({
-'-3': 'Game telah berakhir',
-'-2': 'Invalid',
-'-1': 'Posisi Invalid',
-0: 'Posisi Invalid',
-}[ok])
-return !0
-}
-if (m.sender === room.game.winner) isWin = true
-else if (room.game.board === 511) isTie = true
-let arr = room.game.render().map(v => {
-return {
-X: '❌',
-O: '⭕',
-1: '1️⃣',
-2: '2️⃣',
-3: '3️⃣',
-4: '4️⃣',
-5: '5️⃣',
-6: '6️⃣',
-7: '7️⃣',
-8: '8️⃣',
-9: '9️⃣',
-}[v]
-})
-if (isSurrender) {
-room.game._currentTurn = m.sender === room.game.playerX
-isWin = true
-}
-let winner = isSurrender ? room.game.currentTurn : room.game.winner
-let str = `Room ID: ${room.id}
-
-${arr.slice(0, 3).join('')}
-${arr.slice(3, 6).join('')}
-${arr.slice(6).join('')}
-
-${isWin ? `@${winner.split('@')[0]} Menang!` : isTie ? `Game berakhir` : `Giliran ${['❌', '⭕'][1 * room.game._currentTurn]} (@${room.game.currentTurn.split('@')[0]})`}
-❌: @${room.game.playerX.split('@')[0]}
-⭕: @${room.game.playerO.split('@')[0]}
-
-Ketik *nyerah* untuk menyerah dan mengakui kekalahan`
-if ((room.game._currentTurn ^ isSurrender ? room.x : room.o) !== m.chat)
-room[room.game._currentTurn ^ isSurrender ? 'x' : 'o'] = m.chat
-if (room.x !== room.o) await azhar.sendText(room.x, str, m, { mentions: parseMention(str) } )
-await azhar.sendText(room.o, str, m, { mentions: parseMention(str) } )
-if (isTie || isWin) {
-delete this.game[room.id]
-}
-}
-
-//Suit PvP
-this.suit = this.suit ? this.suit : {}
-let roof = Object.values(this.suit).find(roof => roof.id && roof.status && [roof.p, roof.p2].includes(m.sender))
-if (roof) {
-let win = ''
-let tie = false
-if (m.sender == roof.p2 && /^(acc(ept)?|terima|gas|oke?|tolak|gamau|nanti|ga(k.)?bisa|y)/i.test(m.text) && m.isGroup && roof.status == 'wait') {
-if (/^(tolak|gamau|nanti|n|ga(k.)?bisa)/i.test(m.text)) {
-azhar.sendTextWithMentions(m.chat, `@${roof.p2.split`@`[0]} menolak suit, suit dibatalkan`, m)
-delete this.suit[roof.id]
-return !0
-}
-roof.status = 'play'
-roof.asal = m.chat
-clearTimeout(roof.waktu)
-//delete roof[roof.id].waktu
-azhar.sendText(m.chat, `Suit telah dikirimkan ke chat
-
-@${roof.p.split`@`[0]} dan 
-@${roof.p2.split`@`[0]}
-
-Silahkan pilih suit di chat masing"
-klik https://wa.me/${botNumber.split`@`[0]}`, m, { mentions: [roof.p, roof.p2] })
-if (!roof.pilih) azhar.sendText(roof.p, `Silahkan pilih \n\nBatu🪨\nKertas📄\nGunting✂️`, m)
-if (!roof.pilih2) azhar.sendText(roof.p2, `Silahkan pilih \n\nBatu🪨\nKertas📄\nGunting✂️`, m)
-roof.waktu_milih = setTimeout(() => {
-if (!roof.pilih && !roof.pilih2) azhar.sendText(m.chat, `Kedua pemain tidak niat main,\nSuit dibatalkan`)
-else if (!roof.pilih || !roof.pilih2) {
-win = !roof.pilih ? roof.p2 : roof.p
-azhar.sendTextWithMentions(m.chat, `@${(roof.pilih ? roof.p2 : roof.p).split`@`[0]} tidak memilih suit, game berakhir`, m)
-}
-delete this.suit[roof.id]
-return !0
-}, roof.timeout)
-}
-let jwb = m.sender == roof.p
-let jwb2 = m.sender == roof.p2
-let g = /gunting/i
-let b = /batu/i
-let k = /kertas/i
-let reg = /^(gunting|batu|kertas)/i
-if (jwb && reg.test(m.text) && !roof.pilih && !m.isGroup) {
-roof.pilih = reg.exec(m.text.toLowerCase())[0]
-roof.text = m.text
-reply(`Kamu telah memilih ${m.text} ${!roof.pilih2 ? `\n\nMenunggu lawan memilih` : ''}`)
-if (!roof.pilih2) azhar.sendText(roof.p2, '_Lawan sudah memilih_\nSekarang giliran kamu', 0)
-}
-if (jwb2 && reg.test(m.text) && !roof.pilih2 && !m.isGroup) {
-roof.pilih2 = reg.exec(m.text.toLowerCase())[0]
-roof.text2 = m.text
-reply(`Kamu telah memilih ${m.text} ${!roof.pilih ? `\n\nMenunggu lawan memilih` : ''}`)
-if (!roof.pilih) azhar.sendText(roof.p, '_Lawan sudah memilih_\nSekarang giliran kamu', 0)
-}
-let stage = roof.pilih
-let stage2 = roof.pilih2
-if (roof.pilih && roof.pilih2) {
-clearTimeout(roof.waktu_milih)
-if (b.test(stage) && g.test(stage2)) win = roof.p
-else if (b.test(stage) && k.test(stage2)) win = roof.p2
-else if (g.test(stage) && k.test(stage2)) win = roof.p
-else if (g.test(stage) && b.test(stage2)) win = roof.p2
-else if (k.test(stage) && b.test(stage2)) win = roof.p
-else if (k.test(stage) && g.test(stage2)) win = roof.p2
-else if (stage == stage2) tie = true
-azhar.sendText(roof.asal, `_*Hasil Suit*_${tie ? '\nSERI' : ''}
-
-@${roof.p.split`@`[0]} (${roof.text}) ${tie ? '' : roof.p == win ? ` Menang \n` : ` Kalah \n`}
-@${roof.p2.split`@`[0]} (${roof.text2}) ${tie ? '' : roof.p2 == win ? ` Menang \n` : ` Kalah \n`}
-`.trim(), m, { mentions: [roof.p, roof.p2] })
-delete this.suit[roof.id]
-}
-}
-const menulist = `Hallo ${pushname} ${ucapanWaktu}
-● Nomor : ${sender.split('@')[0]}
-● User : ${isPremium ? 'Premium' : 'Free'}
-● Admin : ${isAdmins ? 'Ya' : 'No'}
-● Uang : ${checkuangUser(sender)}
-● Limit : ${isPremium ? 'UNLIMITED' : `${checklimitUser(sender)}`}
-● Library : Baileys MD
-● Language : JavaScript
-
-Indonesia Timur :${moment().utcOffset('+0900').format('HH:mm')} WIT
-Indonesia Tengah :${moment().utcOffset('+0800').format('HH:mm')} WITA
-Indonesia Barat :${moment().utcOffset('+0700').format('HH:mm')} WIB`
-
-const listmn = `
-_*MAIN COMMAND*_
-• ${prefix}limit
-• ${prefix}atm
-• ${prefix}buylimit
-
-_*ANONYMOUS MAIN*_
-• ${prefix}start
-• ${prefix}next
-• ${prefix}stop
-
-_*GROUP MENU*_
-• ${prefix}getpp [tag]
-• ${prefix}afk [Alasan]
-• ${prefix}linkgroup
-• ${prefix}ephemeral [option]
-• ${prefix}setppgc [image]
-• ${prefix}setname [text]
-• ${prefix}setdesc [text]
-• ${prefix}group [option]
-• ${prefix}editinfo [option]
-• ${prefix}add @user
-• ${prefix}kick @user
-• ${prefix}hidetag [text]
-• ${prefix}tagall [text]
-• ${prefix}promote @user
-• ${prefix}demote @user
-• ${prefix}vote [text]
-• ${prefix}devote
-• ${prefix}upvote
-• ${prefix}cekvote
-• ${prefix}hapusvote
-• ${prefix}antilink
-• ${prefix}welcome
-• ${prefix}listonline
-
-_*DOWNLOADER MENU*_
-• ${prefix}ytmp3 [url]
-• ${prefix}ytmp4 [url]
-• ${prefix}umma [url]
-• ${prefix}twitter [url]
-• ${prefix}mediafire [url]
-• ${prefix}gitclone [url]
-• ${prefix}facebook [url]
-• ${prefix}tiktok [url]
-
-_*SEARCH MENU*_
-• ${prefix}searchgc [query]
-• ${prefix}play [query]
-• ${prefix}yts [query]
-• ${prefix}google [query]
-• ${prefix}gimage [query]
-• ${prefix}pinterest [query]
-• ${prefix}wallpaper [query]
-• ${prefix}wikimedia [query]
-• ${prefix}ytsearch [query]
-• ${prefix}ringtone [query]
-• ${prefix}pinterest2 [query]
-• ${prefix}mcpedl [query]
-• ${prefix}happymod [query]
-
-_*FUN MENU*_
-• ${prefix}fakemore
-• ${prefix}quotes
-• ${prefix}halah
-• ${prefix}hilih
-• ${prefix}huluh
-• ${prefix}heleh
-• ${prefix}holoh
-• ${prefix}jadian
-• ${prefix}jodohku
-• ${prefix}delttt
-• ${prefix}tictactoe
-• ${prefix}family100
-• ${prefix}tebak [option]
-• ${prefix}math [mode]
-• ${prefix}suitpvp [@tag]
-• ${prefix}react [Emoji]
-
-_*PRIMBON MENU*_
-• ${prefix}nomorhoki
-• ${prefix}artimimpi
-• ${prefix}artinama
-• ${prefix}ramaljodoh
-• ${prefix}ramaljodohbali
-• ${prefix}suamiistri
-• ${prefix}ramalcinta
-• ${prefix}cocoknama
-• ${prefix}pasangan
-• ${prefix}jadiannikah
-• ${prefix}sifatusaha
-• ${prefix}rezeki
-• ${prefix}pekerjaan
-• ${prefix}nasib
-• ${prefix}penyakit
-• ${prefix}tarot
-• ${prefix}fengshui
-• ${prefix}haribaik
-• ${prefix}harisangar
-• ${prefix}harisial
-• ${prefix}nagahari
-• ${prefix}arahrezeki
-• ${prefix}peruntungan
-• ${prefix}weton
-• ${prefix}karakter
-• ${prefix}keberuntungan
-• ${prefix}memancing
-• ${prefix}masasubur
-• ${prefix}zodiak
-• ${prefix}shio
-
-_*CONVERTER MENU*_
-• ${prefix}toimage
-• ${prefix}removebg
-• ${prefix}sticker
-• ${prefix}emojimix
-• ${prefix}tovideo
-• ${prefix}togif
-• ${prefix}tourl
-• ${prefix}tovn
-• ${prefix}tomp3
-• ${prefix}toaudio
-• ${prefix}ebinary
-• ${prefix}dbinary
-
-_*OTHER MENU*_
-• ${prefix}chord
-• ${prefix}fliptext
-• ${prefix}toletter
-• ${prefix}del
-• ${prefix}image
-• ${prefix}kalkulator
-• ${prefix}ping
-• ${prefix}owner
-• ${prefix}delete
-• ${prefix}infochat
-• ${prefix}quoted
-• ${prefix}setcmd
-• ${prefix}listcmd
-• ${prefix}delcmd
-• ${prefix}lockcmd
-• ${prefix}addmsg
-• ${prefix}listmsg
-• ${prefix}getmsg
-• ${prefix}delmsg
-• ${prefix}servermc
-
-_*ISLAM MENU*_
-• ${prefix}iqra
-• ${prefix}hadist
-• ${prefix}alquran
-• ${prefix}juzamma
-
-_*VOICE CHANGER MENU*_
-• ${prefix}bass
-• ${prefix}blown
-• ${prefix}deep
-• ${prefix}earrape
-• ${prefix}fast
-• ${prefix}fat
-• ${prefix}nightcore
-• ${prefix}reverse
-• ${prefix}robot
-• ${prefix}slow
-• ${prefix}tupai
-
-_*OWNER MENU*_
-• ${prefix}sendsessi
-• ${prefix}chat [option]
-• ${prefix}join [link]
-• ${prefix}leave
-• ${prefix}block @user
-• ${prefix}unblock @user
-• ${prefix}bcgroup [text]
-• ${prefix}bcall [text]
-• ${prefix}setppbot [image]
-• ${prefix}setbio [text]
-• ${prefix}listpc
-• ${prefix}listgc
-• ${prefix}addprem
-• ${prefix}dellprem
-• ${prefix}ban
-• ${prefix}unban
-
-_*STIKER MENU*_
-• ${prefix}stickerwm [Teks1|Teks2]
-• ${prefix}sticker
-• ${prefix}gura
-• ${prefix}patrik
-• ${prefix}stikeranime
-• ${prefix}doge
-• ${prefix}bucinstick
-• ${prefix}semoji
-• ${prefix}emojimix
-• ${prefix}smeme
-
-_*NEWS MENU*_
-• ${prefix}jalantikus-meme
-• ${prefix}merdeka-news
-• ${prefix}kontan-news
-• ${prefix}cnbc-news
-• ${prefix}tribun-news
-• ${prefix}indozone-news
-• ${prefix}kompas-news
-• ${prefix}detik-news
-• ${prefix}daily-news
-• ${prefix}inews-news
-• ${prefix}okezone-news
-• ${prefix}sindo-news
-• ${prefix}tempo-news
-• ${prefix}antara-news
-• ${prefix}cnn-news
-• ${prefix}fajar-news
-
-_*MAKER MENU*_
-• ${prefix}nulis
-• ${prefix}3dbox
-• ${prefix}drapwater
-• ${prefix}lion2
-• ${prefix}papercut
-• ${prefix}transformer
-• ${prefix}herryp
-• ${prefix}neondevil
-• ${prefix}3dstone
-• ${prefix}3davengers
-• ${prefix}thunder
-• ${prefix}window
-• ${prefix}graffiti
-• ${prefix}pornhub
-• ${prefix}blackping
-• ${prefix}glitch
-• ${prefix}glitch2
-• ${prefix}glitch3
-• ${prefix}3dspace
-• ${prefix}lion
-• ${prefix}3dneon
-• ${prefix}neon
-• ${prefix}greenneon
-• ${prefix}bokeh
-• ${prefix}hollographic
-• ${prefix}bear
-• ${prefix}wolf
-• ${prefix}joker
-• ${prefix}dropwater
-• ${prefix}neonlight
-• ${prefix}natural
-• ${prefix}carbon
-• ${prefix}pencil
-• ${prefix}candy
-• ${prefix}christmas
-• ${prefix}3dchristmas
-• ${prefix}sparklechristmas
-• ${prefix}deepsea
-• ${prefix}scifi
-• ${prefix}rainbow
-• ${prefix}waterpipe
-• ${prefix}spooky
-• ${prefix}circuit
-• ${prefix}discovery
-• ${prefix}metalic
-• ${prefix}fiction
-• ${prefix}demon
-• ${prefix}berry
-• ${prefix}thunder
-• ${prefix}magma
-• ${prefix}3dstone
-• ${prefix}neonlight
-• ${prefix}glitch
-• ${prefix}harrypotter
-• ${prefix}brokenglass
-• ${prefix}papercut
-• ${prefix}watercolor
-• ${prefix}multicolor
-• ${prefix}neondevil
-• ${prefix}underwater
-• ${prefix}graffitibike
-• ${prefix}snow
-• ${prefix}cloud
-• ${prefix}honey
-• ${prefix}ice
-• ${prefix}fruitjuice
-• ${prefix}biscuit
-• ${prefix}wood
-• ${prefix}chocolate
-• ${prefix}strawberry
-• ${prefix}matrix
-• ${prefix}blood
-• ${prefix}toxic
-• ${prefix}lava
-• ${prefix}rock
-• ${prefix}bloodglas
-• ${prefix}hallowen
-• ${prefix}darkgold
-• ${prefix}wicker
-• ${prefix}firework
-• ${prefix}skeleton
-• ${prefix}blackpink
-• ${prefix}sand
-• ${prefix}glue
-• ${prefix}1917
-• ${prefix}leaves
-
-_*ANIME MENU*_
-• ${prefix}manga
-• ${prefix}quotesanime
-• ${prefix}wallnime
-• ${prefix}waifu
-• ${prefix}husbu
-• ${prefix}loli
-• ${prefix}shota
-`
 //document randomizer
 function pickRandom(list) {
 return list[Math.floor(list.length * Math.random())]
 }
-let documents = [doc3]
+let documents = [doc5]
 let docs = (documents)
 /////TEKS BUTTON
 const koinPerlimit = 100
@@ -1054,13 +462,308 @@ const prem3 = [{buttonId: `${prefix}beli`,buttonText: {displayText: `BELI PREMIU
 const daftar1 = `Hai kak ${pushname} ${ucapanWaktu} \n\nSebelum Menggunakan ${setting.botName} Daftar Terlebih Dahulu Ya `
 const daftar2 = `Klik tombol di bawah \nJika tidak ada tombol ketik ${prefix}daftar\n*© ${setting.botName} bot*`
 const daftar3 = [{buttonId: `${prefix}daftar`,buttonText: {displayText: `DAFTAR `,},type: 1,},]
-
 blomdaftar = `${ucapanWaktu} @${sender.split("@")[0]} Kamu belum terdaftar di database cek private message mu untuk mendaftar`
 limitabis = `*[LIMIT KAMU HABIS]*\nBeli limit di ${prefix}buylimit atau beli premium untuk mendapatkan unlimited limit`
 
-//////////PEMBUKAAN CASE BREAK///////
+//////// [Tempat Chat Pribadi] /////////
+const image12 = fs.readFileSync('./media/pp.jpg')
+const bayar1 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga :\nProduk: \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const bayar2 = `© ${setting.botName} bot`
+const bayar3 = [{buttonId: `bayar`,buttonText: {displayText: `BAYAR`,},type: 1,}, {buttonId: `p`,buttonText: {displayText: `LIHAT MENU`,},type: 1,}]
+blombayar = `┌────「𝙋𝙀𝙎𝘼𝙉 𝙋𝙍𝙄𝘽𝘼𝘿𝙄」───⬣\n└『𝙷𝚊𝚒 @${sender.split("@")[0]} 𝚂𝚒𝚕𝚊𝚑𝚔𝚊𝚗 𝙲𝚎𝚔 𝙲𝚑𝚊𝚝 𝙿𝚛𝚒𝚋𝚊𝚍𝚒 𝚈𝚊𝚗𝚐 𝙳𝚒𝚔𝚒𝚛𝚒𝚖𝚔𝚊𝚗 𝙾𝚕𝚎𝚑 𝙱𝚘𝚝』`
+
+
+/////////// [Tempat Kata] //////////////
+const stock1 = `𝚂𝚝𝚘𝚔 𝚃𝚎𝚛𝚜𝚎𝚍𝚒𝚊`
+const stock2 = `𝚂𝚝𝚘𝚔 𝚃𝚎𝚛𝚋𝚊𝚝𝚊𝚜`
+const stock3 = `𝚂𝚝𝚘𝚔 𝙷𝚊𝚋𝚒𝚜`
+
+const katahi = `𝙷𝚊𝚒 _${pushname}_
+𝙸𝚗𝚒 𝙰𝚍𝚊𝚕𝚊𝚑 𝙿𝚎𝚜𝚊𝚗 𝙾𝚝𝚘𝚖𝚊𝚝𝚒𝚜  
+⬣━━━</>𝐏𝐄𝐑𝐇𝐀𝐓𝐈𝐀𝐍</>━━━⬣ 
+=⬣ 𝙹𝚊𝚗𝚐𝚊𝚗 𝚂𝚙𝚊𝚖 𝚃𝚎𝚕𝚙𝚘𝚗 𝙱𝚘𝚝 
+=⬣ 𝙹𝚊𝚗𝚐𝚊𝚗 𝚂𝚙𝚊𝚖 𝙲𝚑𝚊𝚝 𝙱𝚘𝚝   
+𝙸𝚗𝚏𝚘 𝙱𝚘𝚝 
+● Running : ${runtime(process.uptime())}
+● 
+● Language : JavaScript
+● Jam  : ${moment().utcOffset('+0900').format('HH:mm')} WIT
+             : ${moment().utcOffset('+0800').format('HH:mm')} WITA
+             : ${moment().utcOffset('+0700').format('HH:mm')} WIB
+⬣======================⬣
+
+┏━⬣ 𝘽𝙊𝙏 𝙏𝙀𝙇𝘼𝙃 𝘽𝙀𝙍𝙅𝘼𝙇𝘼𝙉 
+┗━━━━━━━━━━━━━━━━━━━⬣ 
+⬡ ${runtime(process.uptime())}
+⬣━━━━━━━━━━━━━━━━━━━⬣ 
+
+𝚂𝚒𝚕𝚊𝚑𝚔𝚊𝚗 𝙿𝚒𝚕𝚒𝚑 𝙼𝚎𝚗𝚞 𝙳𝚒𝚋𝚊𝚠𝚊𝚑 𝙸𝚗𝚒`
+
+const katalist = `┌─────「𝙈𝙀𝙉𝙐 𝙎𝙏𝙊𝙍𝙀」───── ◉
+├⋗ 𝙽𝚊𝚖𝚊 : ${pushname}
+├⋗ 𝙽𝚘𝚖𝚘𝚛 : ${sender.split('@')[0]}
+├⋗ 𝙸𝚗𝚏𝚘 : ${isAdmins ? '𝙰𝚍𝚖𝚒𝚗' : '𝙼𝚎𝚖𝚋𝚎𝚛'}
+├⋗ 𝚂𝚝𝚊𝚝𝚞𝚜 : ${isSeller ? '𝚂𝚎𝚕𝚕𝚎𝚛/𝙿𝚎𝚗𝚓𝚞𝚊𝚕' : '𝙱𝚞𝚢𝚎𝚛/𝙿𝚎𝚖𝚋𝚎𝚕𝚒'}
+├⋗ 𝚂𝚎𝚛𝚟𝚎𝚛  : ${os.platform()}
+└『𝚂𝚒𝚕𝚊𝚑𝚔𝚊𝚗 𝙿𝚒𝚕𝚒𝚑 𝙼𝚎𝚗𝚞 𝙳𝚒 𝙱𝚊𝚠𝚊𝚑 \n   𝙸𝚗𝚒 𝚄𝚗𝚝𝚞𝚔 𝙼𝚎𝚕𝚒𝚑𝚊𝚝 𝙼𝚎𝚗𝚞 𝚂𝚝𝚘𝚛𝚎』`
+
+const nyoutube = ('𝗫𝗜𝗘 𝗕𝗢𝗧𝗭') 
+
+
+const menulist = `Hallo ${pushname} ${ucapanWaktu}
+● Nomor : ${sender.split('@')[0]}
+● User : ${isSeller ? 'Premium' : 'Free'}
+● Admin : ${isAdmins ? 'Ya' : 'No'}
+● Uang : ${checkuangUser(sender)}
+● Limit : ${isPremium ? 'UNLIMITED' : `${checklimitUser(sender)}`}
+● Library : Baileys MD
+● Language : JavaScript
+
+Indonesia Timur :${moment().utcOffset('+0900').format('HH:mm')} WIT
+Indonesia Tengah :${moment().utcOffset('+0800').format('HH:mm')} WITA
+Indonesia Barat :${moment().utcOffset('+0700').format('HH:mm')} WIB`
+
+const listmn = `
+_*MAIN COMMAND*_
+• ${prefix}limit
+• ${prefix}atm
+• ${prefix}buylimit
+`
+
+////////////[Kata Kata Produk]/////////
+const fb12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const ig12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 12.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const tt12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const yt12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const ml12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const ff12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const pb12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const hdi12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const pubg12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const cod12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const canva12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+const info12 = `Kamu Akan Membeli Item Di ${setting.botName} Store \nHarga : 10.000\nProduk: 1k Like \nSilahkan Tekan Bayar Untuk Melanjutkan Proses Pembayaran`
+
+/////////// [Penutup Kata] //////////////
+
+
+
+///////////////////////// [PEMBUKAAN CASE BREAK] /////////////////////////////////
 switch(command) {
-  ////GRUB
+
+//////////////////// [TEMPAT STORE 1] ////////////////////
+        
+case 'p': 
+let sections = [
+{
+title: "❏━━━━━━『𝙎𝙊𝙎𝙄𝘼𝙇 𝙈𝙀𝘿𝙄𝘼』━━━━━❍",
+rows: [
+{title: "FACEBOOK", rowId: `fb99`, description: stock1},
+{title: "INSTAGRAM", rowId: `ig99`, description: stock3},
+{title: "TIKTOK", rowId: `tt99`, description: stock2},
+{title: "YOUTUBE", rowId: `yt99`, description: stock3}
+]
+},
+  {
+title: "❏━━━━━━『𝙏𝙊𝙋 𝙐𝙋 𝙂𝘼𝙈𝙀』━━━━━❍",
+rows: [
+{title: "MOBILE LEGENDS", rowId: `ml99`, description: ``},
+{title: "FREE FIRE", rowId: `ff99`, description: ``},
+{title: "POINT BLANK", rowId: `pb99`, description: ``},
+{title: "DOMINO ISLAND", rowId: `hdi99`, description: ``},
+{title: "PUBG MOBILE", rowId: `pubg99`, description: ``},
+{title: "COD MOBILE", rowId: `codm99`, description: ``}
+]
+},
+{
+title: "❏━━━━━━『𝙏𝙊𝙋 𝙐𝙋 𝙂𝘼𝙈𝙀』━━━━━❍",
+rows: [
+{title: "FACEBOOK", rowId: `list5`, description: ``},
+{title: "YOUTUBE", rowId: `animemenu`, description: ``}
+]
+},
+{
+title: "❏━━━━━━『𝙏𝙊𝙋 𝙐𝙋 𝙂𝘼𝙈𝙀』━━━━━❍",
+rows: [
+{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
+{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
+]
+}, 
+]
+azhar.sendListMsg(m.chat, katalist, `${setting.botName}`, ``, `BUKA MENU`, sections, ftoko) 
+break
+
+//////////////////// [TEMPAT STORE 2] ////////////////////
+case 'fb99': {
+    let buttons = [
+        {buttonId: `p`, buttonText: {displayText: 'BAYAR'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'tt99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'ig99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'yt99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'ml99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'ff99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'pb99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+case 'pubg99': {
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: image12,
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break 
+
+//////////////////// [TEMPAT STORE 3] ////////////////////
+case 'sell1': {
+  if (!m.isGroup) return sendButMessage (sender, fb12, bayar2, bayar3, { quoted: ftoko})
+  if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+  }
+  break
+case 'sell2': {
+    if (!m.isGroup) return sendButMessage (sender, ig12, bayar2, bayar3, { quoted: ftoko})
+    if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+    }
+break
+case 'sell3': {
+      if (!m.isGroup) return sendButMessage (sender, tt12, bayar2, bayar3, { quoted: ftoko})
+      if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+      }
+      break
+case 'sell4': {
+        if (!m.isGroup) return sendButMessage (sender, yt12, bayar2, bayar3, { quoted: ftoko})
+        if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+        }
+ break
+case 'sell5': {
+          if (!m.isGroup) return sendButMessage (sender, ml12, bayar2, bayar3, { quoted: ftoko})
+          if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+          }
+break
+case 'sell6': {
+     if (!m.isGroup) return sendButMessage (sender, ff12, bayar2, bayar3, { quoted: ftoko})
+      if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    reply("bayar")
+            }
+break
+       
+/////////////////////////[PENUTUP STORE]//////////////////////
+        
+case 'tes': {
+    if (!m.isGroup) return sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    if (!isPayment) return reply(blombayar) & sendButMessage (sender, bayar1, bayar2, bayar3, { quoted: ftoko})
+    if (isBan) return reply(mess.banned)
+    let buttons = [
+        {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
+    ]
+    let buttonMessage = {
+        image: { url:'./media/thumb.jpg'},
+        caption: katahi,
+        footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
+        buttons: buttons,
+        headerType: 4
+    }
+    azhar.sendMessage(m.chat, buttonMessage, { quoted: ftoko })
+}
+break      
 case 'sendsessi':
 if (!isOwner) return reply(mess.owner)
 azhar.sendMessage(from, { document: fs.readFileSync(`./${setting.sessionName}.json`), mimetype: 'jpg/application', fileName: `${setting.sessionName}.json`}, { quoted: ftoko })
@@ -1068,7 +771,7 @@ break
   case 'beli':
   reply('coming soon...')
   break
-case 'daftar':
+case 'daftar':{
   if (isRegister) return reply('Akun kamu sudah terdaftar di database')
 if (isBan) return reply(mess.banned)
 if (m.isGroup) return reply('Daftar di private message')
@@ -1082,27 +785,13 @@ const anuuh = `*「 𝙑𝙀𝙍𝙄𝙁𝙄𝘾𝘼𝙏𝙄𝙊𝙉 𝙎𝙐�
 *Terimakasih telah mendapatkan diri ke database Karuta berikut adalah infonya*\n\n*●Nama : ${pushname}*\n*●Nomor : ${sender.split('@')[0]}*\n*●Pengguna : ${register.length}*\n*●SN : ${serialUser}*\n\n*Gunakan bot sewajarnya*`
 register.push(sender)
 fs.writeFileSync('./database/user/register.json', JSON.stringify(register))
-adduang(sender)
-adduangUser(sender, 1000)
-addlimit(sender)
-addlimitUser(sender, 20)
-Imgnah = await getBuffer(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlaKCZE6A9OdzmLHnsxL28_XT8qjBsL1tSlg&usqp=CAU`)
-/////////  
-let btn886 = [{
-urlButton: {
-displayText: 'Instagram',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-quickReplyButton: {
-displayText: 'MENU',
-id: 'menu'
-}
-}]
-karutamd = fs.readFileSync('./media/karuta.png')
+const Imgnah = await getBuffer(`https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlaKCZE6A9OdzmLHnsxL28_XT8qjBsL1tSlg&usqp=CAU`)
+let btn886 = [{ buttonId: 'p', buttonText: { displayText: 'ALL MENU' }, type: 1 }]
 let txtit = anuuh
-azhar.sendMessage(from, { caption: anuuh, image: Imgnah, templateButtons: btn886, footer: `© ${setting.botName} bot`, mentions: [sender] })
-  
+azhar.sendMessage(from, { caption: anuuh, image: Imgnah, templateButtons: btn886, footer: `© ${setting.botName} bot`, mentions: [sender] }
+                 )
+		m.reply('「 𝙑𝙀𝙍𝙄𝙁𝙄𝘾𝘼𝙏𝙄𝙊𝙉 𝙎𝙐𝙆𝙎𝙀𝙎  」')
+}
   break
 case 'ban':
 if (!isOwner) return reply(mess.owner)
@@ -1135,6 +824,28 @@ premium.push(`${prmi}@s.whatsapp.net`)
 fs.writeFileSync('./database/user/premium.json', JSON.stringify(premium))
 reply(`*「 PREMIUM ADDED 」*\n\n➸ *ID*: ${prmi}`)
 break
+case 'addseller':
+if (!isOwner) return reply(mess.owner)
+if (!q) return reply(`Masukan Nomornya contoh: \n${prefix}${command} 628586826398`)
+if(isNaN(q)) return await reply('harus berupa nomor')
+  if (q.includes(`+`)) return reply('Tidak menggunakan + langsung nomor 6285****')
+prmi = args.join(" ")
+premium.push(`${prmi}@s.whatsapp.net`)
+fs.writeFileSync('./database/store/seller.json', JSON.stringify(seller))
+reply(`*「 SELLER ADDED 」*\n\n➸ *ID*: ${prmi}`)
+break
+case 'delseller':
+ case 'dellseller':
+  if (!isOwner) return reply(mess.owner)
+  if (!q) return reply(`Masukan Nomornya contoh: \n${prefix}${command} 628586826398`)
+  if(isNaN(q)) return await reply('harus berupa nomor')
+  if (q.includes(`+`)) return reply('Tidak menggunakan + langsung nomor 6285****')
+  prmin = `${q}@s.whatsapp.net`
+anul = banned.indexOf(prmin)
+premium.splice(anul, 1)
+fs.writeFileSync('./database/store/seller.json', JSON.stringify(seller))
+reply(mess.success)
+  break
 case 'delprem':
  case 'dellprem':
   if (!isOwner) return reply(mess.owner)
@@ -1147,6 +858,19 @@ premium.splice(anul, 1)
 fs.writeFileSync('./database/user/premium.json', JSON.stringify(premium))
 reply(mess.success)
   break
+  
+case 'public': {
+if (!isOwner) return reply(mess.owner)
+azhar.public = true
+reply('Sukse Change To Public Usage')
+}
+break
+case 'self': {
+if (!isOwner) return reply(mess.owner)
+azhar.public = false
+reply('Sukses Change To Self Usage')
+}
+break
   case 'welcome':
 if (!m.isGroup) return reply(mess.group)
 if (!isAdmins && !isOwner) return reply(mess.admin)
@@ -1174,77 +898,34 @@ headerType: 1
 azhar.sendMessage(from, patri, {quoted:ftoko})
 }
   break
-  case 'antilink': 
+case 'antilink': 
 if (!m.isGroup) return reply(mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins && !isOwner) return reply(mess.admin)
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-  if (args[0] === 'enable'){
-   if (isAntilink) return reply(`*Udah nyala!*`)
+if (args[0] === 'enable'){
+if (isAntilink) return reply(`*Udah Aktif*`)
 antilink.push(from)
 fs.writeFileSync('./database/group/antilink.json', JSON.stringify(antilink))
-reply('*「ANTILINK DI AKTIFKAN」*\n\nYang Mengenai Link Group Bakal Ke Kick!')
-	} else if (args[0] === 'disable') { if (!isAntilink) return reply(`*Belum nyala!*`)
-   anu = antilink.indexOf(from)
-   antilink.splice(anu, 1)
+reply('*「 ANTILINK DI AKTIFKAN 」*\n\nYang Ngirim Link Group Bakal Ke Kick!')
+} else if (
+args[0] === 'disable') { 
+if (!isAntilink) return reply(`*Belum Aktif*`)
+let anu = antilink.indexOf(from)
+antilink.splice(anu, 1)
 fs.writeFileSync('./database/group/antilink.json', JSON.stringify(antilink))
 reply('*「ANTILINK DI NONAKTIFKAN」*')
 	} else {
-const buttonstod = [{buttonId: `${prefix}antilink enable`, buttonText: {displayText: 'ON'}, type: 1},{buttonId: `${prefix}antilink disable`, buttonText: {displayText: 'OF'}, type: 1}]
+const buttonstod = [{buttonId: `${prefix}antilink enable`, buttonText: {displayText: 'ON'}, type: 1},{buttonId: `${prefix}antilink disable`, buttonText: {displayText: 'OFF'}, type: 1}]
 const patri = {
 text: `Silahkan pilih salah satu di bawah`,
-footer: `© ${setting.botName} bot`,
+footer: `© ${setting.botName}`,
 buttons: buttonstod,
 headerType: 1
 }
 azhar.sendMessage(from, patri, {quoted:ftoko})
 }
   break
-  case 'sabar':
-reply(`يَا أَيُّهَا الَّذِينَ آمَنُوا اصْبِرُوا وَصَابِرُوا وَرَ
-ابِطُوا وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ
-
-Wahai orang-orang yang beriman! Bersabarlah kamu dan kuatkanlah kesabaranmu dan tetaplah bersiap siaga (di perbatasan negerimu) dan bertakwalah kepada Allah agar kamu beruntung. (Ali Imran ayat 200) `)
-break
-case 'react':{
-  azhar.sendMessage(from, reactionMessage)
-}
-break
-case 'film':
-  if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-if (isBan) return reply(mess.banned)
-if (!q) return reply(`Apa yg mau kamu cari?\nExample: ${prefix}film Spiderman`)
-if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-x.Film(q)
-    .then(data => {console.log(data)
-    let krl = `*❒「  Film ${q} 」*\n*🌿 Author* : ${data[0].author}\n\n`
-	for (let i of data) {
-krl += (`\n────────────────────\n\n *•Title :* ${i.judul}\n *• Quality :* ${i.quality}\n *• Type : ${i.type}*\n *• Uploaded :* ${i.upload}\n *• Source :* ${i.link}`)
-}
-   azhar.sendMessage(from, { image: { url: data[0].thumb}, caption: krl }, { quoted: ftex })
-});
-confirmlimit(sender, 1)
-break
-  case 'quotes' :
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-  if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-    var res = await Quotes()
-    const buttons = [
-{buttonId: `${prefix}${command}`, buttonText: {displayText: 'NEXT'}, type: 1}
-]
-const pa = {
-text: `
-Quotes:\n${res.quotes}\n
-Author: ${res.author}`,
-footer: `© ${setting.botName} bot`,
-buttons: buttons,
-headerType: 1
-}
-azhar.sendMessage(from, pa, {quoted:ftoko})
-confirmlimit(sender, 1)
-break
+  
 case 'donasi':
   reply('Donasi seikhlas nya kakak biar bot ini makin keren\nhttps://saweria.co/Yukishima\n\n*GAK MAKSA*')
 break
@@ -1281,239 +962,36 @@ case 'chat': {
 if (!isOwner) return reply(mess.owner)
 if (!q) return reply( 'Option : 1. mute\n2. unmute\n3. archive\n4. unarchive\n5. read\n6. unread\n7. delete')
 if (args[0] === 'mute') {
-    azhar.chatModify({ mute: 'Infinity' }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ mute: 'Infinity' }, m.chat, [])
 } else if (args[0] === 'unmute') {
-    azhar.chatModify({ mute: null }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ mute: null }, m.chat, [])
 } else if (args[0] === 'archive') {
-    azhar.chatModify({  archive: true }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({  archive: true }, m.chat, [])
 } else if (args[0] === 'unarchive') {
-    azhar.chatModify({ archive: false }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ archive: false }, m.chat, [])
 } else if (args[0] === 'read') {
-    azhar.chatModify({ fromMe: true }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ fromMe: true }, m.chat, [])
 } else if (args[0] === 'unread') {
-    azhar.chatModify({ markRead: false }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ markRead: false }, m.chat, [])
 } else if (args[0] === 'delete') {
-    azhar.chatModify({ clear: { message: { id: m.quoted.id, fromMe: true }} }, m.chat, []).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    azhar.chatModify({ clear: { message: { id: m.quoted.id, fromMe: true }} }, m.chat, [])
 }
 }
 break
-case 'family100': {
- if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-if ('family100'+m.chat in _family100) {
-    reply('Masih Ada Sesi Yang Belum Diselesaikan!')
-    throw false
-}
-let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/family100.json')
-let random = anu[Math.floor(Math.random() * anu.length)]
-let hasil = `*Jawablah Pertanyaan Berikut :*\n${random.soal}\n\nTerdapat *${random.jawaban.length}* Jawaban ${random.jawaban.find(v => v.includes(' ')) ? `(beberapa Jawaban Terdapat Spasi)` : ''}`.trim()
-_family100['family100'+m.chat] = {
-    id: 'family100'+m.chat,
-    pesan: await azhar.sendText(m.chat, hasil, m),
-    ...random,
-    terjawab: Array.from(random.jawaban, () => false),
-    hadiah: 6,
-}
-}
-confirmlimit(sender, 1)
-break
-    case 'fakemore':
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-    if (args.length < 1) return reply(`Penggunaan ${prefix + command} mem|beri`)
-teks1 = q.split("|")[0]
-teks2 = q.split("|")[1]
-reply(`${teks1}͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏͏${teks2}`)
-break
-case 'halah': case 'hilih': case 'huluh': case 'heleh': case 'holoh':
-if (!m.quoted && !text) return reply( `Kirim/reply text dengan caption ${prefix + command}`)
-ter = command[1].toLowerCase()
-tex = m.quoted ? m.quoted.text ? m.quoted.text : q ? q : m.text : q ? q : m.text
-reply(tex.replace(/[aiueo]/g, ter).replace(/[AIUEO]/g, ter.toUpperCase()))
-break
-case 'toletter': {
-   if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-if (!Number(args[0])) return reply(`Example:\n${prefix}toletter 956`)
-try {
-quere = args.join(" ")
-convertes = await toHur(quere)
-reply(`*[ALPHABET TEXT]*\n•Nomor :*${quere}*\n•Alphabet :*${convertes}*`)
-} catch {
-replay(`Error!`)
-}
-}
-break
-case 'fliptext':
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-if (args.length < 1) return reply(`Example:\n${prefix}fliptext Hallo`)
-quere = args.join(" ")
-flipe = quere.split('').reverse().join('')
-reply(`*[FLIP TEXT]*\n•Normal :*${quere}*\n•Flip :*${flipe}*`)
-break
-case 'tebak': {
- if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-if (!text) return reply( `Example : ${prefix + command} lagu\n\nOption : \n1. lagu\n2. gambar\n3. kata\n4. kalimat\n5. lirik\n6.lontong`)
-if (args[0] === "lagu") {
-    if (tebaklagu.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://fatiharridho.github.io/tebaklagu.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    let msg = await azhar.sendMessage(m.chat, {audio: { url: result.link_song }, mimetype:'audio/mpeg', ptt:true }, {quoted:m})
-    azhar.sendText(m.chat, `Lagu Tersebut Adalah Lagu dari?\n\nArtist : ${result.artist}\nWaktu : 60s`, msg).then(() => {
-    tebaklagu[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-    })
-    await sleep(60000)
-    if (tebaklagu.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lagu', buttonText: { displayText: 'Tebak Lagu' }, type: 1 }], `Waktu Habis\nJawaban:  ${tebaklagu[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete tebaklagu[m.sender.split('@')[0]]
-    }
-} else if (args[0] === 'gambar') {
-    if (tebakgambar.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakgambar.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    azhar.sendImage(m.chat, result.img, `Silahkan Jawab Soal Di Atas Ini\n\nDeskripsi : ${result.deskripsi}\nWaktu : 60s`, m).then(() => {
-    tebakgambar[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-    })
-    await sleep(60000)
-    if (tebakgambar.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak gambar', buttonText: { displayText: 'Tebak Gambar' }, type: 1 }], `Waktu Habis\nJawaban:  ${tebakgambar[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete tebakgambar[m.sender.split('@')[0]]
-    }
-} else if (args[0] === 'kata') {
-    if (tebakkata.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakkata.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    azhar.sendText(m.chat, `Silahkan Jawab Pertanyaan Berikut\n\n${result.soal}\nWaktu : 60s`, m).then(() => {
-    tebakkata[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-    })
-    await sleep(60000)
-    if (tebakkata.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak kata', buttonText: { displayText: 'Tebak Kata' }, type: 1 }], `Waktu Habis\nJawaban:  ${tebakkata[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete tebakkata[m.sender.split('@')[0]]
-    }
-} else if (args[0] === 'kalimat') {
-    if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebakkalimat.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    azhar.sendText(m.chat, `Silahkan Jawab Pertanyaan Berikut\n\n${result.soal}\nWaktu : 60s`, m).then(() => {
-    tebakkalimat[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-    })
-    await sleep(60000)
-    if (tebakkalimat.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak kalimat', buttonText: { displayText: 'Tebak Kalimat' }, type: 1 }], `Waktu Habis\nJawaban:  ${tebakkalimat[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete tebakkalimat[m.sender.split('@')[0]]
-    }
-} else if (args[0] === 'lirik') {
-    if (tebaklirik.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/tebaklirik.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    azhar.sendText(m.chat, `Ini Adalah Lirik Dari Lagu? : *${result.soal}*?\nWaktu : 60s`, m).then(() => {
-    tebaklirik[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-    })
-    await sleep(60000)
-    if (tebaklirik.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lirik', buttonText: { displayText: 'Tebak Lirik' }, type: 1 }], `Waktu Habis\nJawaban:  ${tebaklirik[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete tebaklirik[m.sender.split('@')[0]]
-    }
-} else if (args[0] === 'lontong') {
-    if (caklontong.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-    let anu = await fetchJson('https://raw.githubusercontent.com/BochilTeam/database/master/games/caklontong.json')
-    let result = anu[Math.floor(Math.random() * anu.length)]
-    azhar.sendText(m.chat, `*Jawablah Pertanyaan Berikut :*\n${result.soal}*\nWaktu : 60s`, m).then(() => {
-    caklontong[m.sender.split('@')[0]] = result.jawaban.toLowerCase()
-caklontong_desk[m.sender.split('@')[0]] = result.deskripsi
-    })
-    await sleep(60000)
-    if (caklontong.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    azhar.sendButtonText(m.chat, [{ buttonId: 'tebak lontong', buttonText: { displayText: 'Tebak Lontong' }, type: 1 }], `Waktu Habis\nJawaban:  ${caklontong[m.sender.split('@')[0]]}\nDeskripsi : ${caklontong_desk[m.sender.split('@')[0]]}\n\nIngin bermain? tekan button dibawah`, ` © ${setting.botName} bot`, m)
-    delete caklontong[m.sender.split('@')[0]]
-delete caklontong_desk[m.sender.split('@')[0]]
-    }
-}
-}
-confirmlimit(sender, 1)
-break
-case 'kuismath': case 'math': {
-  if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-if (kuismath.hasOwnProperty(m.sender.split('@')[0])) return reply( "Masih Ada Sesi Yang Belum Diselesaikan!")
-let { genMath, modes } = require('./src/math')
-if (!text) return reply( `Pilih Mode:\n- ${Object.keys(modes).join(' \n- ')}\n\nContoh penggunaan: ${prefix}math medium`)
-let result = await genMath(text.toLowerCase())
-azhar.sendText(m.chat, `*Berapa hasil dari: ${result.soal.toLowerCase()}*?\n\nWaktu: ${(result.waktu / 1000).toFixed(2)} detik`, m).then(() => {
-    kuismath[m.sender.split('@')[0]] = result.jawaban
-})
-await sleep(result.waktu)
-if (kuismath.hasOwnProperty(m.sender.split('@')[0])) {
-    console.log("Jawaban: " + result.jawaban)
-    reply("Waktu Habis\nJawaban: " + kuismath[m.sender.split('@')[0]])
-    delete kuismath[m.sender.split('@')[0]]
-}
-}
-confirmlimit(sender, 1)
-break
-case 'jodohku': {
-if (!m.isGroup) return reply(mess.group)
-let member = participants.map(u => u.id)
-let me = m.sender
-let jodoh = member[Math.floor(Math.random() * member.length)]
-let jawab = `👫Jodoh mu adalah
 
-@${me.split('@')[0]} ❤️ @${jodoh.split('@')[0]}\nINI CUMA GAME OK`
-let ments = [me, jodoh]
-let buttons = [
-{ buttonId: 'jodohku', buttonText: { displayText: 'Jodohku' }, type: 1 }
-    ]
-    await azhar.sendButtonText(m.chat, buttons, jawab, ` © ${setting.botName} bot`, m, {mentions: ments})
-}
-break
-case '͏͏jodohku͏͏': {
-if (!m.isGroup) return reply( mess.group)
-let member = participants.map(u => u.id)
-let me = m.sender
-let jodoh = '6285246027002@s.whatsapp.net'
-let jawab = `👫Jodoh mu adalah
-
-@${me.split('@')[0]} ❤️ @${jodoh.split('@')[0]}\nINI CUMA GAME OK`
-let ments = [me, jodoh]
-let buttons = [
-{ buttonId: 'jodohku', buttonText: { displayText: 'Jodohku' }, type: 1 }
-    ]
-    await azhar.sendButtonText(m.chat, buttons, jawab, ` © ${setting.botName} bot`, m, {mentions: ments})
-}
-break
-case 'jadian': {
-if (!m.isGroup) return reply(mess.group)
-let member = participants.map(u => u.id)
-let orang = member[Math.floor(Math.random() * member.length)]
-let jodoh = member[Math.floor(Math.random() * member.length)]
-let jawab = `Ciee yang Jadian💖 Jangan lupa pajak jadiannya🐤
-
-@${orang.split('@')[0]} ❤️ @${jodoh.split('@')[0]}`
-let menst = [orang, jodoh]
-let buttons = [
-{ buttonId: 'jadian', buttonText: { displayText: 'Jodohku' }, type: 1 }
-    ]
-    await azhar.sendButtonText(m.chat, buttons, jawab, ` © ${setting.botName} bot`, m, {mentions: menst})
-}
-break
+//////////////////[Grup menu]/////////////////////
 case 'join': {
 if (!isOwner) return reply(mess.owner)
 if (!text) return reply( 'Masukkan Link Group!')
 if (!isUrl(args[0]) && !args[0].includes('whatsapp.com')) return reply( 'Link Invalid!')
 reply(mess.wait)
 let result = args[0].split('https://chat.whatsapp.com/')[1]
-await azhar.groupAcceptInvite(result).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+await azhar.groupAcceptInvite(result)
 }
 break
 case 'leave': {
 if (!isOwner) return reply(mess.owner)
-await azhar.groupLeave(m.chat).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+await azhar.groupLeave(m.chat)
 }
 break
 	case 'kick': {
@@ -1523,9 +1001,10 @@ if (!m.isGroup) return reply( mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins) return reply( mess.admin)
 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-await azhar.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+await azhar.groupParticipantsUpdate(m.chat, [users], 'remove')
 	}
 	break
+    
 	case 'add': {
 	  if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
     if (isBan) return reply(mess.banned)
@@ -1533,7 +1012,7 @@ if (!m.isGroup) return reply( mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins) return reply( mess.admin)
 let users = m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-await azhar.groupParticipantsUpdate(m.chat, [users], 'add').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+await azhar.groupParticipantsUpdate(m.chat, [users], 'add')
 	}
 	break
 	case 'promote': {
@@ -1543,7 +1022,17 @@ if (!m.isGroup) return reply( mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins) return reply( mess.admin)
 let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
-await azhar.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+await azhar.groupParticipantsUpdate(m.chat, [users], 'promote').then((res) => reply('Kamu Sekarang Jadi Admin')).catch((err) => reply('Gagal'))
+	}
+	break
+case 'demote': {
+	  if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
+    if (isBan) return reply(mess.banned)
+if (!m.isGroup) return reply( mess.group)
+if (!isBotAdmins) return reply( mess.botAdmin)
+if (!isAdmins) return reply( mess.admin)
+let users = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '')+'@s.whatsapp.net'
+await azhar.groupParticipantsUpdate(m.chat, [users], 'demote').then((res) => reply('Kamu Sekarang Jadi Member')).catch((err) => reply('Gagal'))
 	}
 	break
 case 'setname': case 'setsubject': {
@@ -1551,7 +1040,7 @@ if (!m.isGroup) return reply( mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins) return reply( mess.admin)
 if (!text) return reply( 'Text ?')
-await azhar.groupUpdateSubject(m.chat, text).then((res) => reply(mess.success)).catch((err) => reply(jsonformat(err)))
+await azhar.groupUpdateSubject(m.chat, text)
 }
 break
   case 'setdesc': case 'setdesk': {
@@ -1561,7 +1050,7 @@ if (!m.isGroup) return reply( mess.group)
 if (!isBotAdmins) return reply( mess.botAdmin)
 if (!isAdmins) return reply( mess.admin)
 if (!text) return reply( 'Text ?')
-await azhar.groupUpdateDescription(m.chat, text).then((res) => reply(mess.success)).catch((err) => reply(jsonformat(err)))
+await azhar.groupUpdateDescription(m.chat, text)
 }
 break
 case 'setbio':
@@ -1616,172 +1105,7 @@ if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daf
 azhar.sendMessage(m.chat, { text : q ? q : '' , mentions: participants.map(a => a.id)}, { quoted: ftoko })
 }
 break
-   case 'vote': {
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-if (!m.isGroup) return reply(mess.group)
-if (m.chat in vote) return reply( `_Masih ada vote di chat ini!_\n\n*${prefix}hapusvote* - untuk menghapus vote`)
-if (!text) return reply( `Masukkan Alasan Melakukan Vote, Example: *${prefix + command} Owner Ganteng*`)
-reply(`Vote dimulai!\n\n*${prefix}upvote* - untuk ya\n*${prefix}devote* - untuk tidak\n*${prefix}cekvote* - untuk mengecek vote\n*${prefix}hapusvote* - untuk menghapus vote`)
-vote[m.chat] = [q, [], []]
-await sleep(1000)
-upvote = vote[m.chat][1]
-devote = vote[m.chat][2]
-teks_vote = `*「 VOTE 」*
-
-*Alasan:* ${vote[m.chat][0]}
-
-┌〔 UPVOTE 〕
-│ 
-├ Total: ${vote[m.chat][1].length}
-│
-│ 
-└────
-
-┌〔 DEVOTE 〕
-│ 
-├ Total: ${vote[m.chat][2].length}
-│
-│ 
-└────
-
-*${prefix}hapusvote* - untuk menghapus vote`
-let buttonsVote = [
-  {buttonId: `${prefix}upvote`, buttonText: {displayText: '𝚄𝙿𝚅𝙾𝚃𝙴'}, type: 1},
-  {buttonId: `${prefix}devote`, buttonText: {displayText: '𝙳𝙴𝚅𝙾𝚃𝙴'}, type: 1}
-]
-
-let buttonMessageVote = {
-text: teks_vote,
-footer: ` © ${setting.botName} bot`,
-buttons: buttonsVote,
-headerType: 1
-}
-azhar.sendMessage(m.chat, buttonMessageVote)
-}
-break
-   case 'upvote': {
-if (!m.isGroup) return reply(mess.group)
-if (!(m.chat in vote)) return reply( `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
-isVote = vote[m.chat][1].concat(vote[m.chat][2])
-wasVote = isVote.includes(m.sender)
-if (wasVote) return reply( 'Kamu Sudah Vote')
-vote[m.chat][1].push(m.sender)
-menvote = vote[m.chat][1].concat(vote[m.chat][2])
-teks_vote = `*「 VOTE 」*
-
-*Alasan:* ${vote[m.chat][0]}
-
-┌〔 UPVOTE 〕
-│ 
-├ Total: ${vote[m.chat][1].length}
-${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-┌〔 DEVOTE 〕
-│ 
-├ Total: ${vote[m.chat][2].length}
-${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-*${prefix}hapusvote* - untuk menghapus vote`
-let buttonsUpvote = [
-  {buttonId: `${prefix}upvote`, buttonText: {displayText: '𝚄𝙿𝚅𝙾𝚃𝙴'}, type: 1},
-  {buttonId: `${prefix}devote`, buttonText: {displayText: '𝙳𝙴𝚅𝙾𝚃𝙴'}, type: 1}
-]
-
-let buttonMessageUpvote = {
-text: teks_vote,
-footer: ` © ${setting.botName} bot`,
-buttons: buttonsUpvote,
-headerType: 1,
-mentions: menvote
- }
-azhar.sendMessage(m.chat, buttonMessageUpvote)
-}
- break
-case 'devote': {
-   if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-if (!m.isGroup) return reply(mess.group)
-if (!(m.chat in vote)) return reply( `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
-isVote = vote[m.chat][1].concat(vote[m.chat][2])
-wasVote = isVote.includes(m.sender)
-if (wasVote) return reply( 'Kamu Sudah Vote')
-vote[m.chat][2].push(m.sender)
-menvote = vote[m.chat][1].concat(vote[m.chat][2])
-teks_vote = `*「 VOTE 」*
-
-*Alasan:* ${vote[m.chat][0]}
-
-┌〔 UPVOTE 〕
-│ 
-├ Total: ${vote[m.chat][1].length}
-${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-┌〔 DEVOTE 〕
-│ 
-├ Total: ${vote[m.chat][2].length}
-${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-*${prefix}hapusvote* - untuk menghapus vote`
-let buttonsDevote = [
-  {buttonId: `${prefix}upvote`, buttonText: {displayText: '𝚄𝙿𝚅𝙾𝚃𝙴'}, type: 1},
-  {buttonId: `${prefix}devote`, buttonText: {displayText: '𝙳𝙴𝚅𝙾𝚃𝙴'}, type: 1}
-]
-
-let buttonMessageDevote = {
-text: teks_vote,
-footer: ` © ${setting.botName} bot`,
-buttons: buttonsDevote,
-headerType: 1,
-mentions: menvote
-}
-azhar.sendMessage(m.chat, buttonMessageDevote)
-	}
-break
- 
-case 'cekvote':
-if (!m.isGroup) return reply(mess.group)
-if (!(m.chat in vote)) return reply( `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
-teks_vote = `*「 VOTE 」*
-
-*Alasan:* ${vote[m.chat][0]}
-
-┌〔 UPVOTE 〕
-│ 
-├ Total: ${upvote.length}
-${vote[m.chat][1].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-┌〔 DEVOTE 〕
-│ 
-├ Total: ${devote.length}
-${vote[m.chat][2].map((v, i) => `├ ${i + 1}. @${v.split`@`[0]}`).join('\n')}
-│ 
-└────
-
-*${prefix}hapusvote* - untuk menghapus vote
-
-
-©${azhar.user.id}
-`
-azhar.sendTextWithMentions(m.chat, teks_vote, m)
-break
-case 'deletevote': case'delvote': case 'hapusvote': {
-if (!m.isGroup) return reply(mess.group)
-if (!(m.chat in vote)) return reply( `_*tidak ada voting digrup ini!*_\n\n*${prefix}vote* - untuk memulai vote`)
-delete vote[m.chat]
-reply('Berhasil Menghapus Sesi Vote Di Grup Ini')
-}
-break
+   
    case 'group': case 'grup': {
  if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
     if (isBan) return reply(mess.banned)
@@ -1820,10 +1144,9 @@ await azhar.groupSettingUpdate(m.chat, 'locked').then((res) => reply(`Sukses Men
 }
 }
 break
-case 'linkgroup': case 'linkgc': {
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
+case 'linkgc': {
 if (!m.isGroup) return reply(mess.group)
+if (!isBotAdmins) return reply(mess.botAdmin)
 let response = await azhar.groupInviteCode(m.chat)
 azhar.sendText(m.chat, `https://chat.whatsapp.com/${response}\n\nLink Group : ${groupMetadata.subject}`, m, { detectLink: true })
 }
@@ -1834,122 +1157,49 @@ if (!isBotAdmins) return reply(mess.botAdmin)
 if (!isAdmins) return reply(mess.admin)
 if (!text) return reply( 'Masukkan value enable/disable')
 if (args[0] === 'enable') {
-    await azhar.sendMessage(m.chat, { disappearingMessagesInChat: WA_DEFAULT_EPHEMERAL }).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    await azhar.sendMessage(m.chat, { disappearingMessagesInChat: WA_DEFAULT_EPHEMERAL })
 } else if (args[0] === 'disable') {
-    await azhar.sendMessage(m.chat, { disappearingMessagesInChat: false }).then((res) => reply(jsonformat(res))).catch((err) => reply(jsonformat(err)))
+    await azhar.sendMessage(m.chat, { disappearingMessagesInChat: false })
 }
 }
 break
 case 'd': case 'delete': case 'del': {
 if (!m.quoted) throw false
 let { chat, fromMe, id, isBaileys } = m.quoted
-if (!isBaileys) return reply( 'Pesan tersebut bukan dikirim oleh bot!')
+if (!isBaileys) return reply( `${pushname}`)
 azhar.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
 }
 break
+
+case 'bc': case 'broadcast': case 'bcall': {
+if (!isOwner) return reply(mess.owner)
+if (!text) throw `Text mana?\n\nExample : ${prefix + command} HALO SEMUANYA`
+let anu = await store.chats.all().map(v => v.id)
+m.reply(`Mengirim Broadcast Ke ${anu.length} Chat\nWaktu Selesai ${anu.length * 1.5} detik`)
+		for (let yoi of anu) {
+		await sleep(1500)
+		let txt = `「 Broadcast Bot 」\n\n${text}`
+		let buttons = [{ buttonId: 'donasi', buttonText: { displayText: '👑 SEWA' }, type: 1 },{ buttonId: 'rules', buttonText: { displayText: '❗Rules' }, type: 1 }]
+            await azhar.sendButtonText(yoi, buttons, txt, nyoutube, m, {quoted: ftoko})
+		}
+		m.reply('Sukses Broadcast')
+}
+break
+
 case 'bcgc': case 'bcgroup': {
 if (!isOwner) return reply(mess.owner)
-if (!text) return reply( `Text mana?\n\nExample : ${prefix + command} fatih-san`)
+if (!text) throw `Text mana?\n\nExample : ${prefix + command} HALO SEMUANYA`
 let getGroups = await azhar.groupFetchAllParticipating()
 let groups = Object.entries(getGroups).slice(0).map(entry => entry[1])
 let anu = groups.map(v => v.id)
-reply(`Mengirim Broadcast Ke ${anu.length} Group Chat, Waktu Selesai ${anu.length * 1.5} detik`)
+m.reply(`Mengirim Broadcast Ke ${anu.length} Group Chat, Waktu Selesai ${anu.length * 1.5} detik`)
 for (let i of anu) {
-    await sleep(1500)
-    let btn = [{
-urlButton: {
-displayText: 'Instagram',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-quickReplyButton: {
-    displayText: '⋮☰ MENU',
-    id: 'menu'
-}
-}]
- karutamd = fs.readFileSync('./media/karuta.jpg')
- let txt = `「 Broadcast Bot 」\n\n${text}`
- azhar.send5ButImg(i, txt, ` © ${setting.botName} bot`, karutamd, btn)
-    }
-reply(`Sukses Mengirim Broadcast Ke ${anu.length} Group`)
-}
-break
-case 'setmenu':
-if (!isOwner) return reply(mess.owner)
-setbot = db.settings[botNumber]
-if (args[0] === 'templateImage'){
-setbot.templateImage = true
-setbot.templateVideo = false
-setbot.templateGif = false
-setbot.templateMsg = false
-setbot.templateDocument = false
-reply(mess.success)
-} else if (args[0] === 'templateVideo'){
-setbot.templateImage = false
-setbot.templateVideo = true
-setbot.templateGif = false
-setbot.templateMsg = false
-reply(mess.success)
-} else if (args[0] === 'templateGif'){
-setbot.templateImage = false
-setbot.templateVideo = false
-setbot.templateGif = true
-setbot.templateMsg = false
-setbot.templateDocument = false
-reply(mess.success)
-} else if (args[0] === 'templateMessage'){
-setbot.templateImage = false
-setbot.templateVideo = false
-setbot.templateGif = false
-setbot.templateMsg = true
-setbot.templateDocument = false
-reply(mess.success)
-} else if (args[0] === 'templateDocument'){
-setbot.templateImage = false
-setbot.templateVideo = false
-setbot.templateGif = false
-setbot.templateMsg = false
-setbot.templateDocument = true
-reply(mess.success)
-} else {
-let sections = [
-{
-title: "CHANGE BOT MENU",
-rows: [
-{title: "Image Menu", rowId: `setmenu templateImage`, description: `Klik untuk mengubah menu ke Image Menu`},
-{title: "Gif Menu", rowId: `setmenu templateGif`, description: `Klik untuk mengubah menu ke Gif Menu`},
-{title: "Video Menu", rowId: `setmenu templateVideo`, description: `Klik untuk mengubah menu ke Video Menu`},
-{title: "Text Menu", rowId: `setmenu templateMessage`, description: `Klik untuk mengubah menu ke Text Menu`},
-{title: "Document Menu", rowId: `setmenu templateDocument`, description: `Klik untuk mengubah menu ke Document Menu`}
-]
-},
-]
-azhar.sendListMsg(m.chat, `Pilih salah satu mode menu di bawah`, `© ${setting.botName} bot`, '*CHANGE MENU*', `Click Here`, sections, m)
-}
-break
-case 'bc': case 'broadcast': case 'bcall': {
-if (!isOwner) return reply(mess.owner)
-if (!text) return reply( `Text mana?\n\nExample : ${prefix + command} fatih-san`)
-let anu = await store.chats.all().map(v => v.id)
-reply(`Mengirim Broadcast Ke ${anu.length} Chat\nWaktu Selesai ${anu.length * 1.5} detik`)
-for (let yoi of anu) {
 await sleep(1500)
-let btn = [{
-urlButton: {
-displayText: 'Instagram',
-url: 'https://instagram.com/Yukishima3_'
+let txt = `「 Broadcast Bot 」\n\n${text}`
+let buttons = [{ buttonId: 'donasi', buttonText: { displayText: '👑 SEWA' }, type: 1 },{ buttonId: 'rules', buttonText: { displayText: '❗Rules' }, type: 1 }]
+await azhar.sendButtonText(i, buttons, txt, nyoutube, m, {quoted: ftoko})
 }
-}, {
-quickReplyButton: {
-    displayText: '⋮☰ MENU',
-    id: 'menu'
-}
-}]
- karutamd = fs.readFileSync('./media/thumb.jpg')
- let txt = `「 Broadcast Bot 」\n\n${text}`
- azhar.send5ButImg(yoi, txt, ` © ${setting.botName} bot`, karutamd, btn)
-}
-reply('Sukses Broadcast')
+m.reply(`Sukses Mengirim Broadcast Ke ${anu.length} Group`)
 }
 break
 
@@ -1994,35 +1244,8 @@ teks += `⬡ *Nama :* ${metadata.subject}\n⬡ *Owner :* @${metadata.owner.split
     azhar.sendText(m.chat, 'List Online:\n\n' + online.map(v => '⭔ @' + v.replace(/@.+/, '')).join`\n`, m, { mentions: online })
  }
  break
-case 'swm': case 'stickerwm': {
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-if (isBan) return reply(mess.banned)
-if ( checklimitUser(sender) <= 0) return reply(limitabis) 
-if (!args.join(" ")) return reply(`Example :\n${prefix}${command} Karuta | botwa`)
-const swn = args.join(" ")
-const pcknm = swn.split("|")[0];
-const atnm = swn.split("|")[1];
-reply(mess.wait)
-if (m.quoted.isAnimated === true) {
-azhar.downloadAndSaveMediaMessage(quoted, "gifee")
-azhar.sendMessage(from, {sticker:fs.readFileSync("gifee.webp")},{quoted:m})
-} else if (/image/.test(mime)) {
-let media = await quoted.download()
-let encmedia = await azhar.sendImageAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
-await fs.unlinkSync(encmedia)
-} else if (/video/.test(mime)) {
-if ((quoted.msg || quoted).seconds > 11) return reply('Maksimal 10 detik!')
-let media = await quoted.download()
-let encmedia = await azhar.sendVideoAsSticker(m.chat, media, m, { packname: pcknm, author: atnm })
-await fs.unlinkSync(encmedia)
-confirmlimit(sender, 1)
-} else {
-reply(`Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`)
-}
-}
- break
-   case 'stiker': case 'sticker': case 's': case 'stickergif': case 'sgif': {
-if (checklimitUser(sender) <= 0) return reply(limitabis)  
+ 
+   case 'stiker': case 'sticker': case 's': { 
 if (!quoted) return reply( `Balas Video/Image Dengan Caption ${prefix + command}`)
 reply(mess.wait)
     if (/image/.test(mime)) {
@@ -2039,27 +1262,6 @@ confirmlimit(sender, 1)
 return reply( `Kirim Gambar/Video Dengan Caption ${prefix + command}\nDurasi Video 1-9 Detik`)
 }
 }
-break
-case 'emoji':
-if (!args.join(" ")) return reply('emojinya?')
-emoji.get(args.join(" ")).then(async(emoji) => {
-let mese = await azhar.sendMessage(m.chat, {image:{url:emoji.images[4].url}, caption:"Done!"}, {quoted:m})
-await azhar.sendMessage(from, {text:"jadikan stiker sendiri jangan manja"}, {quoted:mese})
-})
-break
-case 'allmenu':
-if (!isRegister) return reply(blomdaftar) & sendButMessage (sender, daftar1, daftar2, daftar3, { quoted: ftoko}) 
-    if (isBan) return reply(mess.banned)
-    buttonss2 = [
-{buttonId: `${prefix}menu`, buttonText: {displayText: 'BACK TO MENU'}, type: 1}
-]
-pa3 = {
-text: listmn,
-footer: `© ${setting.botName} bot`,
-buttons: buttonss2,
-headerType: 1
-}
-azhar.sendMessage(from, pa3, {quoted:m})
 break
 case 'ping': case 'botstatus': case 'statusbot': {
 const used = process.memoryUsage()
@@ -2137,94 +1339,14 @@ reply(`•Namabot : ${setting.botName}
 •Listban : ${banned.length}
 `)
 break
-case 'infoowner':
-pro = `*PROFILE OWNER KARUTA*
-•Nama : Yukishima
-•Umur : 18 Tahun
-•Asal : Bekasi
-•IG   : Yukishima3_
-•FB   : Yukishima
-•Saya bukan mastah saya pemula
-•Saya Bukan wibu :v`
-azhar.sendMessage(m.chat, { video: { url:'https://a.uguu.se/XqseYfhr.mp4' }, gifPlayback: true , caption:pro}, { quoted: ftoko })
-break
-case 'menu':
-karutamddd = await reSize(`./media/karuta.png`, 200, 200) 
-let bton = [{
-urlButton: {
-displayText: 'DONASI',
-url: 'https://saweria.co/Yukishima'
-}
-}, {
-urlButton: {
-displayText: 'INSTAGRAM',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-quickReplyButton: {
-displayText: 'SIMPLE',
-id: 'command'
-}
-}, {
-quickReplyButton: {
-displayText: 'ALL',
-id: 'allmenu'
-}  
-}, {
-quickReplyButton: {
-displayText: 'ANONYMOUS CHAT',
-id: 'ac'
-}
-}]
-setbot = db.settings[botNumber]
-if (setbot.templateImage) {
-azhar.sendMessage(from, { caption: menulist, image: global.thumb, templateButtons: bton, footer:`© ${setting.botName} bot`, mentions: [sender] })
-} else if (setbot.templateGif) {
-azhar.sendMessage(from, { caption: menulist, video: global.vidmenu, gifPlayback: true, templateButtons: bton, footer: `© ${setting.botName} bot`, mentions: [sender] })
-} else if (setbot.templateVid) {
-azhar.sendMessage(from, { caption: menulist, video: global.vidmenu, templateButtons: bton, footer: `© ${setting.botName} bot`, mentions: [sender] })
-} else if (setbot.templateVideo) {
-azhar.sendMessage(from, { caption: menulist, video: global.vidmenu, templateButtons: bton, footer: `© ${setting.botName} bot`, mentions: [sender] })
-} else if (setbot.templateMsg) {
-azhar.sendMessage(from, { text: menulist, templateButtons: buttonsDefault, footer: `© ${setting.botName} bot`, mentions: [sender] })
-} else if (setbot.templateDocument) {
-let buttonmenu = [{
-urlButton: {
-displayText: 'DONASI',
-url: 'https://saweria.co/Yukishima'
-}
-}, {
-urlButton: {
-displayText: 'INSTAGRAM',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-quickReplyButton: {
-displayText: 'SIMPLE',
-id: 'cmd'
-}
-}, {
-quickReplyButton: {
-displayText: 'ALL',
-id: 'allmenu'
-}  
-}, {
-quickReplyButton: {
-displayText: 'ANONYMOUS CHAT',
-id: 'ac'
-}
-}]
-azhar.sendMessage(m.chat, { caption: menulist, document: fs.readFileSync('./media/info.pdf'), mimetype: `${docs}`, jpegThumbnail:fs.readFileSync("./media/menu.png"), fileName: `${setting.botName}`, templateButtons: buttonmenu, footer: `© ${setting.botName} bot`, quoted: [m] })
-}
-break
 
-/////////[ TEMPAT CASE PADA CHAT ]/////////////
+///////// [ TEMPAT CASE PADA CHAT ] /////////////
   case 'Hai': case 'Hi': case 'hai': case 'hi': case 'Haii': case 'bot': case 'haii': case 'Halo': case 'halo': case 'menu': case 'Menu': case 'permisi': case 'Assalamualaikum': case 'bg': {
     let buttons = [
         {buttonId: `store1`, buttonText: {displayText: 'TOP UP GAME'}, type: 1}, {buttonId: `store2`, buttonText: {displayText: 'MEDIA SOSIAL'}, type: 1}
     ]
     let buttonMessage = {
-        image: { url:'./media/thumb.jpg'},
+        image: image12,
         caption: katahi,
         footer: `𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐁𝐎𝐓`,
         buttons: buttons,
@@ -2234,278 +1356,27 @@ break
 }
 break 
 
-case 'tes': {
-if (!isOwner) return reply(mess.owner)
-if (!text) return reply( `Text mana?\n\nExample : ${prefix + command} fatih-san`)
-let anu = await store.chats.all().map(v => v.id)
-reply(`Mengirim Broadcast Ke ${anu.length} Chat\nWaktu Selesai ${anu.length * 1.5} detik`)
-for (let yoi of anu) {
-await sleep(1500)
-let btn = [{
-urlButton: {
-displayText: 'Instagram',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-quickReplyButton: {
-    displayText: '⋮☰ MENU',
-    id: 'menu'
-}
-}]
- karutamd = fs.readFileSync('./media/thumb.jpg')
- let txt = `「 Broadcast Bot 」\n\n${text}`
- azhar.send5ButImg(yoi, txt, ` © ${setting.botName} bot`, karutamd, btn)
-}
-reply('Sukses Broadcast')
-}
-break
 
-/////// TEMPAT LIST MENU ////////
-        
-case 'p': 
-let sections = [
-{
-title: "JASA SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list1`, description: ``},
-{title: "INSTAGRAM", rowId: `list2`, description: ``},
-{title: "TIKTOK", rowId: `list2`, description: ``},
-{title: "YOUTUBE", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "JASA TOP UP",
-rows: [
-{title: "MOBILE LEGENDS", rowId: `list3`, description: ``},
-{title: "FREE FIRE", rowId: `list4`, description: ``},
-{title: "POINT BLANK", rowId: `list4`, description: ``},
-{title: "DOMINO ISLAND", rowId: `list4`, description: ``},
-{title: "PUBG MOBILE", rowId: `list4`, description: ``},
-{title: "COD MOBILE", rowId: `list4`, description: ``}
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "INFO BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katalist, `${setting.botName}`, ``, `BUKA MENU`, sections, ftoko) 
-break
-        
-case 'list1': 
-let sections1 = [
-{
-title: "BAHAN WEBSITE",
-rows: [
-{title: "DOMAIN", rowId: `list1`, description: ``},
-{title: "VPS", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "TEMA WEBSITE",
-rows: [
-{title: "BLOGGER", rowId: `list3`, description: ``},
-{title: "TOP UP", rowId: `list4`, description: ``},
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "PEMILIK BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katahi, `𝐖𝐡𝐚𝐭𝐀𝐩𝐩 𝐁𝐨𝐭`, ``, `BUKA MENU`, sections1, ftoko) 
-break
+case 'speedtest': {
+            m.reply('Testing Speed...')
+            let cp = require('child_process')
+            let { promisify } = require('util')
+            let exec = promisify(cp.exec).bind(cp)
+          let o
+          try {
+          o = await exec('python speed.py')
+          } catch (e) {
+          o = e
+         } finally {
+        let { stdout, stderr } = o
+        if (stdout.trim()) m.reply(stdout)
+        if (stderr.trim()) m.reply(stderr)
+            }
+            }
+            break
+             
 
-case 'list2': 
-let sections2 = [
-{
-title: "BAHAN WEBSITE",
-rows: [
-{title: "DOMAIN", rowId: `list1`, description: ``},
-{title: "VPS", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "TEMA WEBSITE",
-rows: [
-{title: "BLOGGER", rowId: `list3`, description: ``},
-{title: "TOP UP", rowId: `list4`, description: ``},
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "PEMILIK BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katahi, `𝐖𝐡𝐚𝐭𝐀𝐩𝐩 𝐁𝐨𝐭`, ``, `BUKA MENU`, sections2, ftoko) 
-break
-
-case 'list3': 
-let sections3 = [
-{
-title: "BAHAN WEBSITE",
-rows: [
-{title: "DOMAIN", rowId: `list1`, description: ``},
-{title: "VPS", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "TEMA WEBSITE",
-rows: [
-{title: "BLOGGER", rowId: `list3`, description: ``},
-{title: "TOP UP", rowId: `list4`, description: ``},
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "PEMILIK BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katahi, `𝐖𝐡𝐚𝐭𝐀𝐩𝐩 𝐁𝐨𝐭`, ``, `BUKA MENU`, sections3, ftoko) 
-break
-
-case 'list4': 
-let sections4 = [
-{
-title: "BAHAN WEBSITE",
-rows: [
-{title: "DOMAIN", rowId: `list1`, description: ``},
-{title: "VPS", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "TEMA WEBSITE",
-rows: [
-{title: "BLOGGER", rowId: `list3`, description: ``},
-{title: "TOP UP", rowId: `list4`, description: ``},
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "PEMILIK BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katahi, `𝐖𝐡𝐚𝐭𝐀𝐩𝐩 𝐁𝐨𝐭`, ``, `BUKA MENU`, sections4, ftoko) 
-break
-
-case 'list5': 
-let sections5 = [
-{
-title: "BAHAN WEBSITE",
-rows: [
-{title: "DOMAIN", rowId: `list1`, description: ``},
-{title: "VPS", rowId: `list2`, description: ``}
-]
-},
-  {
-title: "TEMA WEBSITE",
-rows: [
-{title: "BLOGGER", rowId: `list3`, description: ``},
-{title: "TOP UP", rowId: `list4`, description: ``},
-]
-},
-{
-title: "SOSIAL MEDIA",
-rows: [
-{title: "FACEBOOK", rowId: `list5`, description: ``},
-{title: "YOUTUBE", rowId: `animemenu`, description: ``}
-]
-},
-{
-title: "PEMILIK BOT",
-rows: [
-{title: "DEVELOPER BOT", rowId: `owner`, description: ``},
-{title: "INFO DEVELOPER", rowId: `infoowner`, description: ``}
-]
-}, 
-]
-azhar.sendListMsg(m.chat, katahi, `𝐖𝐡𝐚𝐭𝐀𝐩𝐩 𝐁𝐨𝐭`, ``, `BUKA MENU`, sections5, ftoko) 
-break
-////// sample////////
-case 'ggg':
-karutamddd = await reSize(`./media/karuta.png`, 200, 200), 
-setbot = db.settings[botNumber]
-if (setbot.templateDocument) {
-let buttonmenu = [{
-urlButton: {
-displayText: 'DONASI',
-url: 'https://saweria.co/Yukishima'
-}
-}, {
-urlButton: {
-displayText: 'INSTAGRAM',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-urlButton: {
-displayText: 'INSTAGRAM',
-url: 'https://instagram.com/Yukishima3_'
-}
-}, {
-urlButton: {
-displayText: 'INSTAGRAM',
-url: 'https://instagram.com/Yukishima3_'
-}
-},, {
-quickReplyButton: {
-displayText: 'ANONYMOUS CHAT',
-id: 'ac'
-}
-}]
-azhar.sendMessage(m.chat, { caption: menulist, document: fs.readFileSync('./media/info.pdf'), mimetype: `${docs}`, jpegThumbnail:fs.readFileSync("./media/menu.png"), fileName: `${setting.botName}`, templateButtons: buttonmenu, footer: `© ${setting.botName} bot`, mentionedJid: [m.sender] })
-}
-break
-//////////////PEMBATAS ISI CASE / BREAK/////////////
+//////////////////////// [PEMBATAS AKHIR ISI CASE/BREAK]////////////////////////
 default:
 if (budy.startsWith('sendkontak')) {
   const kasihkon = 'BEGIN:VCARD\n'
